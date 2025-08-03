@@ -63,9 +63,8 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             // Embaralha a lista e pega as 3 primeiras cidades
-            // Lembre-se: você pode mudar o número 3 aqui para mostrar mais ou menos cidades
             const shuffledCities = shuffleArray(cityList);
-            const displayCities = shuffledCities.slice(0, 3).join(', '); // Junta com vírgula, ex: "Campinas, Santos, Guarulhos"
+            const displayCities = shuffledCities.slice(0, 3).join(', ');
             
             updateLocationText(userCityAndState, displayCities, userCity);
 
