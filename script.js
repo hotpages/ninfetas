@@ -70,31 +70,30 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // --- FUNÇÃO ATUALIZADA PARA DISTRIBUIR AS CIDADES ---
     function updateLocationText(headerCityList, footerCity, availableCities, stateCode) {
-        // Atualiza a lista de cidades no cabeçalho
-        const headerLocationElements = document.querySelectorAll('.location-list');
-        headerLocationElements.forEach(element => {
-            element.textContent = headerCityList;
-        });
-
-        // Atualiza a cidade específica no rodapé
         const footerLocationElements = document.querySelectorAll('.location-footer');
         footerLocationElements.forEach(element => {
             element.textContent = footerCity;
         });
 
-        // Pega todos os cards de perfil e distribui as cidades da região
+        const headerLocationElements = document.querySelectorAll('.location-list');
+        headerLocationElements.forEach(element => {
+            element.textContent = headerCityList;
+        });
+
         const profileLocationElements = document.querySelectorAll('.location-main');
-        if (availableCities.length > 0) {
+        
+        // --- LINHAS DE DIAGNÓSTICO ADICIONADAS AQUI ---
+        console.log(`[Diagnóstico] Número de perfis encontrados: ${profileLocationElements.length}`);
+        console.log(`[Diagnóstico] Cidades disponíveis para distribuir:`, availableCities);
+        // --- FIM DO DIAGNÓSTICO ---
+
+        if (availableCities.length > 0 && profileLocationElements.length > 0) {
             profileLocationElements.forEach((element, index) => {
-                // Pega uma cidade da lista embaralhada para cada perfil.
-                // O operador '%' (módulo) garante que a lista se repita caso hajam mais perfis do que cidades.
                 const cityForThisProfile = availableCities[index % availableCities.length];
                 element.textContent = `${cityForThisProfile} - ${stateCode}`;
             });
         } else {
-             // Fallback caso a lista de cidades esteja vazia
              profileLocationElements.forEach(element => {
                 element.textContent = `${footerCity} - ${stateCode}`;
              });
