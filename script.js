@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
         'TO': ['Palmas', 'Araguaína', 'Gurupi', 'Porto Nacional', 'Paraíso do Tocantins']
     };
 
-    // Função para embaralhar uma lista (algoritmo de Fisher-Yates)
     function shuffleArray(array) {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
@@ -41,8 +40,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchLocation() {
         try {
-            // --- ATUALIZAÇÃO IMPORTANTE ---
-            // Cole sua chave de API gratuita do site ipgeolocation.io aqui.
             const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=08d97cfb28ac4799a6728a59fa329e95');
             
             if (!response.ok) {
@@ -50,53 +47,58 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             const data = await response.json();
 
-            // --- ATUALIZAÇÃO DAS VARIÁVEIS PARA A NOVA API ---
             const userCity = data.city || 'sua cidade';
-            const stateCode = data.state_code ? data.state_code.split('-')[0] : 'seu estado'; // Pega só a sigla do estado
-            const userCityAndState = `${userCity} - ${stateCode}`;
-
-            let cityList = [];
-            // Verifica se temos uma lista para o estado do usuário
+            const stateCode = data.state_code ? data.state_code.split('-')[0] : 'seu estado';
+            
+            let regionalCities = [];
             if (citiesByState[stateCode]) {
-                cityList = [...citiesByState[stateCode]]; // Cria uma cópia da lista do estado
+                regionalCities = [...citiesByState[stateCode]];
             }
             
-            // Adiciona a cidade específica do usuário à lista (se ainda não estiver lá)
-            if (userCity && !cityList.includes(userCity)) {
-                cityList.push(userCity);
+            if (userCity && !regionalCities.includes(userCity)) {
+                regionalCities.push(userCity);
             }
 
-            // Embaralha a lista e pega as 3 primeiras cidades
-            const shuffledCities = shuffleArray(cityList);
-            const displayCities = shuffledCities.slice(0, 3).join(', ');
+            const shuffledRegionalCities = shuffleArray(regionalCities);
+            const headerCityList = shuffledRegionalCities.slice(0, 3).join(', ');
             
-            updateLocationText(userCityAndState, displayCities, userCity);
+            updateLocationText(headerCityList, userCity, shuffledRegionalCities, stateCode);
 
         } catch (error) {
             console.error("Erro ao buscar localização:", error);
-            // Fallback: se a API falhar, usa textos padrão
-            updateLocationText('sua cidade - seu estado', 'várias cidades do Brasil', 'sua cidade');
+            updateLocationText('várias cidades do Brasil', 'sua cidade', [], 'seu estado');
         }
     }
 
-    function updateLocationText(fullLocation, cityListText, userCity) {
-        // Atualiza a localização específica nos cards de perfil
-        const profileLocationElements = document.querySelectorAll('.location-main');
-        profileLocationElements.forEach(element => {
-            element.textContent = fullLocation;
-        });
-
+    // --- FUNÇÃO ATUALIZADA PARA DISTRIBUIR AS CIDADES ---
+    function updateLocationText(headerCityList, footerCity, availableCities, stateCode) {
         // Atualiza a lista de cidades no cabeçalho
         const headerLocationElements = document.querySelectorAll('.location-list');
         headerLocationElements.forEach(element => {
-            element.textContent = cityListText;
+            element.textContent = headerCityList;
         });
 
         // Atualiza a cidade específica no rodapé
         const footerLocationElements = document.querySelectorAll('.location-footer');
         footerLocationElements.forEach(element => {
-            element.textContent = userCity;
+            element.textContent = footerCity;
         });
+
+        // Pega todos os cards de perfil e distribui as cidades da região
+        const profileLocationElements = document.querySelectorAll('.location-main');
+        if (availableCities.length > 0) {
+            profileLocationElements.forEach((element, index) => {
+                // Pega uma cidade da lista embaralhada para cada perfil.
+                // O operador '%' (módulo) garante que a lista se repita caso hajam mais perfis do que cidades.
+                const cityForThisProfile = availableCities[index % availableCities.length];
+                element.textContent = `${cityForThisProfile} - ${stateCode}`;
+            });
+        } else {
+             // Fallback caso a lista de cidades esteja vazia
+             profileLocationElements.forEach(element => {
+                element.textContent = `${footerCity} - ${stateCode}`;
+             });
+        }
     }
 
     fetchLocation();
