@@ -41,20 +41,24 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchLocation() {
         try {
+            // --- ATUALIZAÇÃO IMPORTANTE ---
+            // Cole sua chave de API gratuita do site ipgeolocation.io aqui.
             const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=08d97cfb28ac4799a6728a59fa329e95');
+            
             if (!response.ok) {
-                throw new Error('Não foi possível obter a localização.');
+                throw new Error('A resposta da rede não foi bem-sucedida.');
             }
             const data = await response.json();
 
+            // --- ATUALIZAÇÃO DAS VARIÁVEIS PARA A NOVA API ---
             const userCity = data.city || 'sua cidade';
-            const userState = data.state_prov || 'seu estado'; // Mudança aqui
-            const userCityAndState = `${userCity} - ${data.state_code}`; // Mudança aqui
+            const stateCode = data.state_code ? data.state_code.split('-')[0] : 'seu estado'; // Pega só a sigla do estado
+            const userCityAndState = `${userCity} - ${stateCode}`;
 
             let cityList = [];
             // Verifica se temos uma lista para o estado do usuário
-            if (citiesByState[userState]) {
-                cityList = [...citiesByState[userState]]; // Cria uma cópia da lista do estado
+            if (citiesByState[stateCode]) {
+                cityList = [...citiesByState[stateCode]]; // Cria uma cópia da lista do estado
             }
             
             // Adiciona a cidade específica do usuário à lista (se ainda não estiver lá)
