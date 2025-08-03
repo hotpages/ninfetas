@@ -41,15 +41,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     async function fetchLocation() {
         try {
-            const response = await fetch('https://ipapi.co/json/');
+            const response = await fetch('https://api.ipgeolocation.io/ipgeo?apiKey=08d97cfb28ac4799a6728a59fa329e95');
             if (!response.ok) {
                 throw new Error('Não foi possível obter a localização.');
             }
             const data = await response.json();
 
             const userCity = data.city || 'sua cidade';
-            const userState = data.region_code || 'seu estado'; // Ex: 'SP'
-            const userCityAndState = `${userCity} - ${userState}`;
+            const userState = data.state_prov || 'seu estado'; // Mudança aqui
+            const userCityAndState = `${userCity} - ${data.state_code}`; // Mudança aqui
 
             let cityList = [];
             // Verifica se temos uma lista para o estado do usuário
